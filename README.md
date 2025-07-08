@@ -1,12 +1,40 @@
-# React + Vite
+# IELTS TimeMaster — React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal and customizable timer app designed specifically for IELTS practice. Built with React and Vite to deliver a smooth development experience and lightning-fast hot module replacement (HMR).
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Structured IELTS timers tailored for Reading, Writing, Speaking, and Pomodoro study modes.
+- Multi-phase timers (e.g., Reading mode divided into 15, 20, and 20-minute passages).
+- Clean, responsive UI with intuitive controls: Start, Pause, Reset, and Next.
 
-## Expanding the ESLint configuration
+## ⚙️ Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React** — UI library
+- **Vite** — Fast build tool and development server with HMR
+- **Tailwind CSS** — Utility-first CSS framework for styling
+- **JavaScript** — Plain JS for logic and interaction
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- Node.js v14 or higher
+- npm package manager
+
+### Installation
+
+# Clone the repository
+git clone https://github.com/Saisha-JSX/IELTS-TimeMaster.git
+cd IELTS-TimeMaster
+
+# Install dependencies
+npm install
+
+### Running the Development Server
+npm run dev
+
+Open your browser and navigate to http://localhost:5173 to view the app.
+
+### 🙏 Acknowledgments
+Inspired by IELTS preparation needs and Pomodoro productivity techniques.
