@@ -1,4 +1,3 @@
-// src/modes/ReadingTimer.jsx
 import { useEffect, useState, useRef } from 'react'
 import TimerDisplay from '../components/TimerDisplay'
 import ControlButtons from '../components/ControlButtons'
@@ -17,7 +16,7 @@ export default function ReadingTimer() {
   const [isRunning, setIsRunning] = useState(false)
   const intervalRef = useRef(null)
 
-  // Timer logic
+  // Countdown logic
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -40,42 +39,45 @@ export default function ReadingTimer() {
     setTimeLeft(phases[phaseIndex].duration)
   }, [phaseIndex])
 
-  function handleStart() {
-    setIsRunning(true)
-  }
+  const handleStart = () => setIsRunning(true)
+  const handlePause = () => setIsRunning(false)
 
-  function handlePause() {
-    setIsRunning(false)
-  }
-
-  function handleReset() {
+  const handleReset = () => {
     setIsRunning(false)
     setTimeLeft(phases[phaseIndex].duration)
   }
 
-  function handleSkip() {
+  const handleSkip = () => {
     setIsRunning(false)
-    if (phaseIndex < phases.length - 1) {
-      setPhaseIndex((i) => i + 1)
-    } else {
-      setPhaseIndex(0)
+    const nextIndex = phaseIndex < phases.length - 1 ? phaseIndex + 1 : 0
+    setPhaseIndex(nextIndex)
+    setTimeout(() => {
+      if (isRunning) setIsRunning(true)
+    }, 100)
+  }
+
+  const handlePhaseClick = (index) => {
+    if (index !== phaseIndex) {
+      setIsRunning(false)
+      setPhaseIndex(index)
     }
   }
 
   return (
     <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center space-y-6">
-
-      {/* Stylish & engaging header */}
-      <div className="flex items-center justify-center gap-2 p-3 mb-2 rounded-md bg-blue-50 border border-blue-100 shadow-sm">
-        <span className="text-2xl animate-bounce-slow">📖</span>
-        <h2 className="text-lg sm:text-xl font-bold text-blue-800 tracking-wide">
-          Reading <span className="text-gray-500">:</span>{' '}
+      {/* Phase Header */}
+      <div className="flex items-center justify-center gap-3 bg-blue-50 border border-blue-100 rounded-md px-4 py-2 shadow-sm">
+        <span className="text-2xl animate-pulse-slow">📖</span>
+        <h2 className="text-lg sm:text-xl font-bold text-blue-800">
+          Reading <span className="text-gray-500">–</span>{' '}
           <span className="text-gray-700">{phases[phaseIndex].title}</span>
         </h2>
       </div>
 
+      {/* Timer Display */}
       <TimerDisplay time={timeLeft} />
 
+      {/* Control Buttons */}
       <ControlButtons
         onStart={handleStart}
         onPause={handlePause}
@@ -84,8 +86,14 @@ export default function ReadingTimer() {
         isRunning={isRunning}
       />
 
-      <ProgressDots total={phases.length} current={phaseIndex} />
+      {/* Progress Dots (now clickable) */}
+      <ProgressDots
+        total={phases.length}
+        current={phaseIndex}
+        onDotClick={handlePhaseClick}
+      />
 
+      {/* Motivational Quote */}
       <QuoteBox />
     </div>
   )

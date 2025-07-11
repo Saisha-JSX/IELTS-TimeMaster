@@ -1,4 +1,3 @@
-// src/components/ModeSelector.jsx
 const modes = [
   { name: 'Reading', color: 'text-blue-600 border-blue-600' },
   { name: 'Writing', color: 'text-green-600 border-green-600' },
@@ -8,16 +7,18 @@ const modes = [
 
 export default function ModeSelector({ activeMode, onChange }) {
   return (
-    <nav className="flex justify-center gap-6 bg-white border-b border-gray-300 shadow-sm">
+    <nav className="flex gap-2">
       {modes.map(({ name, color }) => {
         const isActive = activeMode === name
         return (
           <button
             key={name}
             onClick={() => onChange(name)}
-            className={`relative px-4 py-3 font-semibold border-b-4 -mb-px
-              ${isActive ? `${color}` : 'border-transparent text-gray-500 hover:text-gray-700'}
-              transition-colors duration-200`}
+            className={`px-4 py-2 text-sm font-medium rounded-md border transition-colors duration-200
+              ${isActive 
+                ? `bg-gray-100 border-b-4 ${color}` 
+                : 'text-gray-600 border-transparent hover:bg-gray-50 hover:text-gray-800'}
+            `}
             aria-current={isActive ? 'page' : undefined}
           >
             {name}
