@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import TimerDisplay from '../components/TimerDisplay'
 import ControlButtons from '../components/ControlButtons'
 import ProgressDots from '../components/ProgressDots'
@@ -14,46 +14,47 @@ export default function ReadingTimer() {
   const [phaseIndex, setPhaseIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(phases[0].duration)
   const [isRunning, setIsRunning] = useState(false)
+  const [autoMode, setAutoMode] = useState(false)
   const intervalRef = useRef(null)
 
-  // Countdown logic
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((t) => {
-          if (t <= 1) {
-            handleSkip()
-            return 0
-          }
-          return t - 1
-        })
-      }, 1000)
-    } else {
-      clearInterval(intervalRef.current)
-    }
-    return () => clearInterval(intervalRef.current)
-  }, [isRunning])
+  // Auto-advance and timer logic
+  const handleSkip = useCallback(() => {
+    setIsRunning(false)
+    const nextIndex = (phaseIndex + 1) % phases.length
+    setPhaseIndex(nextIndex)
 
-  // Reset time on phase change
+    if (autoMode && nextIndex !== 0) {
+      setTimeout(() => setIsRunning(true), 500)
+    }
+  }, [phaseIndex, autoMode])
+
+  useEffect(() => {
+    if (!isRunning) return
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current)
+          handleSkip()
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(intervalRef.current)
+  }, [isRunning, handleSkip])
+
+  // Reset timer on phase change
   useEffect(() => {
     setTimeLeft(phases[phaseIndex].duration)
   }, [phaseIndex])
 
   const handleStart = () => setIsRunning(true)
   const handlePause = () => setIsRunning(false)
-
   const handleReset = () => {
     setIsRunning(false)
     setTimeLeft(phases[phaseIndex].duration)
-  }
-
-  const handleSkip = () => {
-    setIsRunning(false)
-    const nextIndex = phaseIndex < phases.length - 1 ? phaseIndex + 1 : 0
-    setPhaseIndex(nextIndex)
-    setTimeout(() => {
-      if (isRunning) setIsRunning(true)
-    }, 100)
   }
 
   const handlePhaseClick = (index) => {
@@ -64,20 +65,19 @@ export default function ReadingTimer() {
   }
 
   return (
-    <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center space-y-6">
-      {/* Phase Header */}
-      <div className="flex items-center justify-center gap-3 bg-blue-50 border border-blue-100 rounded-md px-4 py-2 shadow-sm">
-        <span className="text-2xl animate-pulse-slow">📖</span>
-        <h2 className="text-lg sm:text-xl font-bold text-blue-800">
-          Reading <span className="text-gray-500">–</span>{' '}
-          <span className="text-gray-700">{phases[phaseIndex].title}</span>
-        </h2>
+    <div className="max-w-md w-full bg-[#f8f8f8] rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 text-center space-y-6 mx-auto">
+      {/* Header */}
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-blue-900">IELTS Reading Practice</h2>
+        <p className="text-sm text-gray-600">
+          Current Section: <span className="font-medium text-gray-800">{phases[phaseIndex].title}</span>
+        </p>
       </div>
 
-      {/* Timer Display */}
+      {/* Timer */}
       <TimerDisplay time={timeLeft} />
 
-      {/* Control Buttons */}
+      {/* Controls */}
       <ControlButtons
         onStart={handleStart}
         onPause={handlePause}
@@ -86,14 +86,26 @@ export default function ReadingTimer() {
         isRunning={isRunning}
       />
 
-      {/* Progress Dots (now clickable) */}
+      {/* Progress Dots */}
       <ProgressDots
         total={phases.length}
         current={phaseIndex}
         onDotClick={handlePhaseClick}
       />
 
-      {/* Motivational Quote */}
+      {/* Auto Advance Toggle */}
+      <div className="flex justify-center items-center space-x-2 text-sm">
+        <label htmlFor="autoMode" className="text-gray-700">Auto-advance</label>
+        <input
+          id="autoMode"
+          type="checkbox"
+          checked={autoMode}
+          onChange={() => setAutoMode((prev) => !prev)}
+          className="accent-blue-600"
+        />
+      </div>
+
+      {/* Motivation */}
       <QuoteBox />
     </div>
   )
