@@ -1,77 +1,90 @@
-// src/modes/WritingTimer.jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import TimerDisplay from '../components/TimerDisplay'
 import ControlButtons from '../components/ControlButtons'
 import ProgressDots from '../components/ProgressDots'
-import QuoteBox from '../components/QuoteBox'
 
 const phases = [
-  { title: 'Task 1', duration: 20 * 60 },
-  { title: 'Task 2', duration: 40 * 60 },
+  { title: 'Task 1', duration: 20 * 60 }, // 20 minutes
+  { title: 'Task 2', duration: 40 * 60 }, // 40 minutes
 ]
 
 export default function WritingTimer() {
   const [phaseIndex, setPhaseIndex] = useState(0)
   const [timeLeft, setTimeLeft] = useState(phases[0].duration)
   const [isRunning, setIsRunning] = useState(false)
+  const [autoMode, setAutoMode] = useState(false)
+  const [warningTriggered, setWarningTriggered] = useState(false)
+
   const intervalRef = useRef(null)
 
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((t) => {
-          if (t <= 1) {
-            handleSkip()
-            return 0
-          }
-          return t - 1
-        })
-      }, 1000)
-    } else {
-      clearInterval(intervalRef.current)
+  const handleSkip = useCallback(() => {
+    setIsRunning(false)
+    setWarningTriggered(false)
+    const nextIndex = (phaseIndex + 1) % phases.length
+    setPhaseIndex(nextIndex)
+
+    if (autoMode && nextIndex !== 0) {
+      setTimeout(() => setIsRunning(true), 500)
     }
+  }, [phaseIndex, autoMode])
+
+  useEffect(() => {
+    if (!isRunning) return
+
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current)
+          handleSkip()
+          return 0
+        }
+        if (prev === 15 && !warningTriggered) {  // warning at 15 sec
+          setWarningTriggered(true)
+          // Optional: play beep sound here
+        }
+        return prev - 1
+      })
+    }, 1000)
+
     return () => clearInterval(intervalRef.current)
-  }, [isRunning])
+  }, [isRunning, handleSkip, warningTriggered])
 
   useEffect(() => {
     setTimeLeft(phases[phaseIndex].duration)
+    setWarningTriggered(false)
   }, [phaseIndex])
 
-  function handleStart() {
-    setIsRunning(true)
-  }
-
-  function handlePause() {
-    setIsRunning(false)
-  }
-
-  function handleReset() {
+  const handleStart = () => setIsRunning(true)
+  const handlePause = () => setIsRunning(false)
+  const handleReset = () => {
     setIsRunning(false)
     setTimeLeft(phases[phaseIndex].duration)
+    setWarningTriggered(false)
   }
 
-  function handleSkip() {
-    setIsRunning(false)
-    if (phaseIndex < phases.length - 1) {
-      setPhaseIndex((i) => i + 1)
-    } else {
-      setPhaseIndex(0)
+  const handlePhaseClick = (index) => {
+    if (index !== phaseIndex) {
+      setIsRunning(false)
+      setPhaseIndex(index)
+      setWarningTriggered(false)
     }
   }
 
   return (
-    <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center space-y-6">
-      
-      {/* Engaging header with style */}
-      <div className="flex items-center justify-center gap-2 p-3 mb-2 rounded-md bg-green-50 border border-green-100 shadow-sm">
-        <span className="text-2xl animate-bounce-slow">📝</span>
-        <h2 className="text-lg sm:text-xl font-bold text-green-800 tracking-wide">
-          Writing <span className="text-gray-500">:</span>{' '}
-          <span className="text-gray-700">{phases[phaseIndex].title}</span>
-        </h2>
+    <div className="max-w-md w-full bg-[#f8f8f8] rounded-xl shadow-lg border border-gray-200 p-6 sm:p-8 text-center space-y-6 mx-auto">
+      <div className="space-y-2">
+         <h2 className="text-2xl font-bold text-blue-900">Writing Practice</h2>
+        <p className="text-sm text-gray-600">
+          Current Task: <span className="font-medium text-gray-800">{phases[phaseIndex].title}</span>
+        </p>
       </div>
 
-      <TimerDisplay time={timeLeft} />
+      <TimerDisplay
+        time={timeLeft}
+        duration={phases[phaseIndex].duration}
+        isWarning={timeLeft <= 15 && timeLeft > 0}
+        isDone={timeLeft === 0}
+      />
 
       <ControlButtons
         onStart={handleStart}
@@ -81,9 +94,22 @@ export default function WritingTimer() {
         isRunning={isRunning}
       />
 
-      <ProgressDots total={phases.length} current={phaseIndex} />
+      <ProgressDots
+        total={phases.length}
+        current={phaseIndex}
+        onDotClick={handlePhaseClick}
+      />
 
-      <QuoteBox />
+      <div className="flex justify-center items-center space-x-2 text-sm">
+        <label htmlFor="autoMode" className="text-gray-700">Auto-advance</label>
+        <input
+          id="autoMode"
+          type="checkbox"
+          checked={autoMode}
+          onChange={() => setAutoMode((prev) => !prev)}
+          className="accent-green-600"
+        />
+      </div>
     </div>
   )
 }

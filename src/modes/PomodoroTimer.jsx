@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import TimerDisplay from '../components/TimerDisplay'
 import ControlButtons from '../components/ControlButtons'
 import ProgressDots from '../components/ProgressDots'
-import QuoteBox from '../components/QuoteBox'
+
 
 const phases = [
   { title: 'Work', duration: 25 * 60 },
@@ -64,7 +64,6 @@ export default function PomodoroTimer() {
         isRunning={isRunning}
       />
       <ProgressDots total={phases.length} current={phaseIndex} />
-      <QuoteBox />
     </div>
   )
 }
