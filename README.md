@@ -15,6 +15,11 @@ A minimal and customizable timer app designed specifically for IELTS practice. B
 - **Tailwind CSS** — Utility-first CSS framework for styling
 - **JavaScript** — Plain JS for logic and interaction
 
+## 📸 Screenshot
+
+![IELTS TimeMaster Screenshot](./public/assets/SS.png)
+
+
 ## 📦 Getting Started
 
 ### Prerequisites
